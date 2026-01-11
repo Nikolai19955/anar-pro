@@ -5,63 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Анаравтотранс Pro</title>
     <style>
-        :root { --primary: #00a8ff; --bg: #0f172a; --text: #f8fafc; --border: rgba(255, 255, 255, 0.1); }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px 15px; }
-        .card { background: rgba(30,41,59,0.7); padding: 20px; border-radius: 24px; margin-bottom: 15px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
-        label { font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 5px; display: block; }
-        input { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 14px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: white; box-sizing: border-box; font-size: 1rem; }
-        .btn { width: 100%; padding: 18px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; color: white; margin-bottom: 10px; }
-        .btn-add { background: linear-gradient(135deg, #00a8ff 0%, #0072ff 100%); }
+        :root {
+            --primary: #00a8ff;
+            --bg: #0f172a;
+            --card: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --border: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --danger: #ef4444;
+            --grad-blue: linear-gradient(135deg, #00a8ff 0%, #0072ff 100%);
+        }
+
+        body.light-mode {
+            --bg: #f1f5f9;
+            --card: rgba(255, 255, 255, 0.9);
+            --text: #0f172a;
+            --border: rgba(0, 0, 0, 0.08);
+            --input-bg: #ffffff;
+            --primary: #0284c7;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0; padding: 10px 15px 40px 15px;
+            min-height: 100vh; transition: all 0.3s ease;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        h2 { font-weight: 800; margin: 0; background: linear-gradient(to right, var(--primary), #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem; }
+        
+        .header-btns { display: flex; gap: 8px; }
+        .theme-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-size: 0.7rem; font-weight: 600; }
+
+        .card { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 20px; border-radius: 24px; margin-bottom: 15px; }
+        label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; display: block; }
+        input { width: 100%; padding: 14px; margin-bottom: 15px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; color: var(--text); font-size: 1rem; box-sizing: border-box; }
+        
+        .type-selector { display: flex; gap: 6px; margin-bottom: 20px; background: rgba(0,0,0,0.1); padding: 5px; border-radius: 16px; }
+        .type-btn { flex: 1; padding: 11px; border: none; border-radius: 12px; color: #94a3b8; background: transparent; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
+        .type-btn.active { background: var(--primary); color: white; }
+
+        .action-btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 18px; font-size: 1rem; font-weight: 800; cursor: pointer; margin-bottom: 12px; transition: transform 0.2s; }
+        .action-btn:active { transform: scale(0.97); }
+        .btn-add { background: var(--grad-blue); }
         .btn-pdf { background: #dc2626; }
-        .item { padding: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+
+        .entry-item { padding: 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { color: var(--danger); background: rgba(239,68,68,0.1); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .hidden { display: none; }
+        .info-row { display: flex; gap: 10px; width: 100%; }
+
         @media print {
             @page { margin: 0; size: A4 portrait; }
             html, body { height: 100% !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
-            .no-print { display: none !important; }
-            .print-only { display: block !important; visibility: visible !important; }
+            .no-print, .container, body > *:not(.print-only) { display: none !important; }
+            .print-only { display: block !important; }
             body { background: white !important; color: black !important; }
-            .print-container { padding: 15mm 20mm !important; width: 210mm !important; height: 297mm !important; box-sizing: border-box !important; position: fixed; top: 0; left: 0; background: white; }
-            .p-header { border-bottom: 2.5px solid #000; text-align: center; margin-bottom: 15px; padding-bottom: 5px; }
-            .p-cust { font-weight: bold; font-size: 13pt; border-bottom: 1.5px solid #000; margin-top: 10px; }
-            .p-line { font-size: 11pt; padding: 5px 0; border-bottom: 1px solid #eee; }
+            .print-container { padding: 15mm 20mm !important; width: 210mm !important; height: 297mm !important; box-sizing: border-box !important; background: white !important; position: fixed; top: 0; left: 0; overflow: hidden !important; }
+            .print-header { border-bottom: 2.5px solid #000; text-align: center; margin-bottom: 10px; padding-bottom: 5px; }
+            .customer-title { font-weight: bold; font-size: 13pt; border-bottom: 1.5px solid #000; margin-top: 10px; padding-bottom: 2px; text-transform: uppercase; }
+            .work-line { font-size: 11pt; padding: 4px 0; border-bottom: 1px solid #eee; line-height: 1.4; color: black !important; }
+            .print-footer { position: absolute; bottom: 10mm; right: 15mm; font-size: 8pt; color: #444; border-top: 1px solid #eee; padding-top: 3px; }
         }
-        .print-only { display: none; }
     </style>
 </head>
-<body>
-<div class="no-print">
-    <h2>Анаравтотранс Pro</h2>
-    <div class="card">
-        <label>ЗАКАЗЧИК</label><input type="text" id="cust">
-        <label>ДАТА</label><input type="text" id="date">
-        <div style="display:flex; gap:10px;"><input type="text" id="l" placeholder="Откуда"><input type="text" id="u" placeholder="Куда"></div>
-        <div style="display:flex; gap:10px;"><input type="text" id="km" placeholder="км"><input type="number" id="r" placeholder="Рейсы"><input type="number" id="t" placeholder="Тонны"></div>
-        <button class="btn btn-add" onclick="add()">➕ ДОБАВИТЬ ЗАПИСЬ</button>
+<body class="dark-mode">
+
+<div class="container no-print">
+    <div class="header">
+        <h2>Анаравтотранс Pro</h2>
+        <div class="header-btns">
+            <button class="theme-btn" onclick="shareApp()">🔗 ПОДЕЛИТЬСЯ</button>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeSwitcher">🌙 DARK</button>
+        </div>
     </div>
-    <div class="card"><div id="list"></div></div>
-    <button class="btn btn-pdf" onclick="window.print()">📥 СКАЧАТЬ ОТЧЕТ PDF</button>
+
+    <div class="card">
+        <label>Заказчик</label>
+        <input type="text" id="customerInput" list="customersList" placeholder="Введите название...">
+        <datalist id="customersList"></datalist>
+
+        <label>Дата</label>
+        <div class="info-row">
+            <input type="text" id="dateInput" placeholder="ДД.ММ" style="flex: 2;">
+            <button class="type-btn" onclick="setToday()" style="flex: 1; height: 50px; border: 1px solid var(--border); margin-bottom: 15px; border-radius: 14px;">СЕГОДНЯ</button>
+        </div>
+
+        <div class="type-selector">
+            <button class="type-btn active" onclick="setMode('trips')" id="btnTrips">РЕЙСЫ</button>
+            <button class="type-btn" onclick="setMode('hours')" id="btnHours">ЧАСЫ</button>
+            <button class="type-btn" onclick="setMode('text')" id="btnText">ПРОЧЕЕ</button>
+        </div>
+
+        <div id="fieldTrips">
+            <label>Погрузка</label>
+            <input type="text" id="loadPlaceInput" list="loadsList" placeholder="Откуда">
+            <datalist id="loadsList"></datalist>
+            <label>Выгрузка</label>
+            <input type="text" id="unloadPlaceInput" list="unloadsList" placeholder="Куда">
+            <datalist id="unloadsList"></datalist>
+            <div class="info-row">
+                <div style="flex:1"><label>км</label><input type="text" id="distInput"></div>
+                <div style="flex:1"><label>Рейсов</label><input type="number" id="tripsCountInput"></div>
+                <div style="flex:1"><label>Тонн</label><input type="number" id="tonsInput"></div>
+            </div>
+            <button class="action-btn btn-add" onclick="addEntry()">➕ ДОБАВИТЬ ЗАПИСЬ</button>
+        </div>
+
+        <div id="fieldHours" class="hidden"><div style="text-align:center; padding:20px; color:#94a3b8; font-weight:600;">🛠 В РАЗРАБОТКЕ...</div></div>
+        <div id="fieldText" class="hidden"><div style="text-align:center; padding:20px; color:#94a3b8; font-weight:600;">🛠 В РАЗРАБОТКЕ...</div></div>
+    </div>
+
+    <div id="entriesCard" class="card" style="padding: 5px;">
+        <div style="padding: 15px 15px 5px 15px; font-weight: 800; color: var(--primary); font-size: 0.8rem; letter-spacing: 1px;">СПИСОК ЗАПИСЕЙ (ЧЕРНОВИК)</div>
+        <div id="entriesList"></div>
+    </div>
+
+    <button class="action-btn btn-pdf" onclick="window.print()">📥 СКАЧАТЬ ОТЧЕТ PDF</button>
+    <button style="width:100%; background:none; border:none; color:#64748b; font-size: 0.75rem; margin-top: 20px; text-decoration: underline; cursor:pointer;" onclick="clearAll()">ОЧИСТИТЬ ВСЕ ДАННЫЕ</button>
 </div>
-<div id="printArea" class="print-only print-container">
-    <div class="p-header"><h1>ОТЧЕТ О ВЫПОЛНЕННОЙ РАБОТЕ</h1></div>
-    <div id="pContent"></div>
+
+<div id="printArea" class="print-only print-container" style="display:none;">
+    <div class="print-header"><h1>ОТЧЕТ О ВЫПОЛНЕННОЙ РАБОТЕ</h1></div>
+    <div id="printContent"></div>
+    <div class="print-footer"><p id="printTimestamp"></p></div>
 </div>
+
 <script>
-    let entries = JSON.parse(localStorage.getItem('reports')) || [];
-    render();
-    function add() {
-        const obj = { id: Date.now(), c: document.getElementById('cust').value.toUpperCase(), d: document.getElementById('date').value, l: document.getElementById('l').value, u: document.getElementById('u').value, km: document.getElementById('km').value, r: document.getElementById('r').value, t: document.getElementById('t').value };
-        if(!obj.c || !obj.d) return alert("Заполните поля!");
-        entries.push(obj); localStorage.setItem('reports', JSON.stringify(entries)); render();
+    let entries = [];
+    let currentMode = 'trips';
+
+    window.onload = function() {
+        const saved = localStorage.getItem('reportEntries');
+        if (saved) { entries = JSON.parse(saved); renderEntries(); }
+        if (localStorage.getItem('theme') === 'light') toggleTheme();
+        updateDatalists(); setToday();
+    };
+
+    function shareApp() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Анаравтотранс Pro',
+                text: 'Приложение для создания отчетов Анаравтотранс',
+                url: window.location.href
+            }).catch(console.error);
+        } else {
+            alert("Ваш браузер не поддерживает кнопку 'Поделиться'. Просто скопируйте ссылку на файл.");
+        }
     }
-    function render() {
-        const list = document.getElementById('list'); const print = document.getElementById('pContent');
-        list.innerHTML = ""; print.innerHTML = "";
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-mode');
+        document.getElementById('themeSwitcher').innerText = isLight ? '☀️ LIGHT' : '🌙 DARK';
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    function setToday() {
+        const d = new Date();
+        document.getElementById('dateInput').value = `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`;
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        ['btnTrips', 'btnHours', 'btnText'].forEach(id => document.getElementById(id).classList.remove('active'));
+        document.getElementById('btn' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+        document.getElementById('fieldTrips').classList.toggle('hidden', mode !== 'trips');
+        document.getElementById('fieldHours').classList.toggle('hidden', mode !== 'hours');
+        document.getElementById('fieldText').classList.toggle('hidden', mode !== 'text');
+    }
+
+    function updateDatalists() {
+        const lists = { customers: new Set(), loads: new Set(), unloads: new Set() };
         entries.forEach(e => {
-            list.innerHTML += `<div class="item"><div>${e.d} | ${e.c}</div><button onclick="del(${e.id})" style="color:red; background:none; border:none;">✕</button></div>`;
-            print.innerHTML += `<div class="p-cust">ЗАКАЗЧИК: ${e.c}</div><div class="p-line">Дата: ${e.d} | Маршрут: ${e.l}-${e.u} (${e.km} км) | Рейсов: ${e.r} | Тонн: ${e.t}</div>`;
+            if (e.customer) lists.customers.add(e.customer);
+            if (e.load) lists.loads.add(e.load);
+            if (e.unload) lists.unloads.add(e.unload);
         });
+        const fill = (id, set) => {
+            const el = document.getElementById(id); el.innerHTML = '';
+            set.forEach(val => { const opt = document.createElement('option'); opt.value = val; el.appendChild(opt); });
+        };
+        fill('customersList', lists.customers); fill('loadsList', lists.loads); fill('unloadsList', lists.unloads);
     }
-    function del(id) { entries = entries.filter(x => x.id !== id); localStorage.setItem('reports', JSON.stringify(entries)); render(); }
+
+    function addEntry() {
+        if (currentMode !== 'trips') return;
+        const customer = document.getElementById('customerInput').value.trim().toUpperCase();
+        const date = document.getElementById('dateInput').value.trim();
+        const load = document.getElementById('loadPlaceInput').value.trim();
+        const unload = document.getElementById('unloadPlaceInput').value.trim();
+        const dist = document.getElementById('distInput').value.trim();
+        const c = document.getElementById('tripsCountInput').value.trim();
+        const t = document.getElementById('tonsInput').value.trim();
+        if (!customer || !date || !load || !unload || !dist || !c || !t) return alert("Заполните все поля!");
+        
+        entries.push({ id: Date.now(), customer, date, load, unload, dist, c, t });
+        localStorage.setItem('reportEntries', JSON.stringify(entries));
+        renderEntries(); updateDatalists();
+        ['unloadPlaceInput', 'distInput', 'tripsCountInput', 'tonsInput'].forEach(id => document.getElementById(id).value = '');
+    }
+
+    function renderEntries() {
+        const listContainer = document.getElementById('entriesList');
+        const printContent = document.getElementById('printContent');
+        listContainer.innerHTML = ''; printContent.innerHTML = '';
+        document.getElementById('printTimestamp').innerText = "Сформировано: " + new Date().toLocaleString('ru-RU');
+        const groups = {};
+        entries.forEach(e => { if (!groups[e.customer]) groups[e.customer] = []; groups[e.customer].push(e); });
+        for (const cust in groups) {
+            groups[cust].forEach(e => {
+                const div = document.createElement('div'); div.className = 'entry-item';
+                div.innerHTML = `<div><div style="font-size:0.65rem; color:var(--primary); font-weight:800;">${cust}</div><div style="font-size:0.85rem;">${e.date}) ${e.load} — ${e.unload} (${e.dist} км) | Рейсов: ${e.c}, тонн: ${e.t}</div></div> <button class="delete-btn" onclick="deleteItem(${e.id})">✕</button>`;
+                listContainer.appendChild(div);
+            });
+            const section = document.createElement('div');
+            section.innerHTML = `<div class="customer-title">ЗАКАЗЧИК: ${cust}</div>`;
+            groups[cust].sort((a,b) => a.date.localeCompare(b.date)).forEach(e => {
+                const line = document.createElement('div'); line.className = 'work-line';
+                line.innerHTML = `Дата: ${e.date} | Маршрут: ${e.load} — ${e.unload} (${e.dist} км) | Рейсов: ${e.c} | Всего тонн: ${e.t}`;
+                section.appendChild(line);
+            });
+            printContent.appendChild(section);
+        }
+    }
+
+    function deleteItem(id) { if (confirm("Удалить запись?")) { entries = entries.filter(e => e.id !== id); localStorage.setItem('reportEntries', JSON.stringify(entries)); renderEntries(); updateDatalists(); } }
+    function clearAll() { if(confirm('Очистить всё?')) { entries = []; localStorage.removeItem('reportEntries'); renderEntries(); updateDatalists(); } }
 </script>
 </body>
 </html>
