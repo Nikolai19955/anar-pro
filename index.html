@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Анаравтотранс Pro</title>
+    <style>
+        :root { --primary: #00a8ff; --bg: #0f172a; --text: #f8fafc; --border: rgba(255, 255, 255, 0.1); }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px 15px; }
+        .card { background: rgba(30,41,59,0.7); padding: 20px; border-radius: 24px; margin-bottom: 15px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
+        label { font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 5px; display: block; }
+        input { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 14px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: white; box-sizing: border-box; font-size: 1rem; }
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; color: white; margin-bottom: 10px; }
+        .btn-add { background: linear-gradient(135deg, #00a8ff 0%, #0072ff 100%); }
+        .btn-pdf { background: #dc2626; }
+        .item { padding: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        @media print {
+            @page { margin: 0; size: A4 portrait; }
+            html, body { height: 100% !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; visibility: visible !important; }
+            body { background: white !important; color: black !important; }
+            .print-container { padding: 15mm 20mm !important; width: 210mm !important; height: 297mm !important; box-sizing: border-box !important; position: fixed; top: 0; left: 0; background: white; }
+            .p-header { border-bottom: 2.5px solid #000; text-align: center; margin-bottom: 15px; padding-bottom: 5px; }
+            .p-cust { font-weight: bold; font-size: 13pt; border-bottom: 1.5px solid #000; margin-top: 10px; }
+            .p-line { font-size: 11pt; padding: 5px 0; border-bottom: 1px solid #eee; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body>
+<div class="no-print">
+    <h2>Анаравтотранс Pro</h2>
+    <div class="card">
+        <label>ЗАКАЗЧИК</label><input type="text" id="cust">
+        <label>ДАТА</label><input type="text" id="date">
+        <div style="display:flex; gap:10px;"><input type="text" id="l" placeholder="Откуда"><input type="text" id="u" placeholder="Куда"></div>
+        <div style="display:flex; gap:10px;"><input type="text" id="km" placeholder="км"><input type="number" id="r" placeholder="Рейсы"><input type="number" id="t" placeholder="Тонны"></div>
+        <button class="btn btn-add" onclick="add()">➕ ДОБАВИТЬ ЗАПИСЬ</button>
+    </div>
+    <div class="card"><div id="list"></div></div>
+    <button class="btn btn-pdf" onclick="window.print()">📥 СКАЧАТЬ ОТЧЕТ PDF</button>
+</div>
+<div id="printArea" class="print-only print-container">
+    <div class="p-header"><h1>ОТЧЕТ О ВЫПОЛНЕННОЙ РАБОТЕ</h1></div>
+    <div id="pContent"></div>
+</div>
+<script>
+    let entries = JSON.parse(localStorage.getItem('reports')) || [];
+    render();
+    function add() {
+        const obj = { id: Date.now(), c: document.getElementById('cust').value.toUpperCase(), d: document.getElementById('date').value, l: document.getElementById('l').value, u: document.getElementById('u').value, km: document.getElementById('km').value, r: document.getElementById('r').value, t: document.getElementById('t').value };
+        if(!obj.c || !obj.d) return alert("Заполните поля!");
+        entries.push(obj); localStorage.setItem('reports', JSON.stringify(entries)); render();
+    }
+    function render() {
+        const list = document.getElementById('list'); const print = document.getElementById('pContent');
+        list.innerHTML = ""; print.innerHTML = "";
+        entries.forEach(e => {
+            list.innerHTML += `<div class="item"><div>${e.d} | ${e.c}</div><button onclick="del(${e.id})" style="color:red; background:none; border:none;">✕</button></div>`;
+            print.innerHTML += `<div class="p-cust">ЗАКАЗЧИК: ${e.c}</div><div class="p-line">Дата: ${e.d} | Маршрут: ${e.l}-${e.u} (${e.km} км) | Рейсов: ${e.r} | Тонн: ${e.t}</div>`;
+        });
+    }
+    function del(id) { entries = entries.filter(x => x.id !== id); localStorage.setItem('reports', JSON.stringify(entries)); render(); }
+</script>
+</body>
+</html>
