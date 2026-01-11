@@ -35,40 +35,43 @@
 
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
         h2 { font-weight: 800; margin: 0; background: linear-gradient(to right, var(--primary), #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem; }
-        
-        .header-btns { display: flex; gap: 8px; }
         .theme-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-size: 0.7rem; font-weight: 600; }
 
         .card { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 20px; border-radius: 24px; margin-bottom: 15px; }
         label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; display: block; }
         input { width: 100%; padding: 14px; margin-bottom: 15px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; color: var(--text); font-size: 1rem; box-sizing: border-box; }
         
-        .type-selector { display: flex; gap: 6px; margin-bottom: 20px; background: rgba(0,0,0,0.1); padding: 5px; border-radius: 16px; }
-        .type-btn { flex: 1; padding: 11px; border: none; border-radius: 12px; color: #94a3b8; background: transparent; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
-        .type-btn.active { background: var(--primary); color: white; }
-
+        .info-row { display: flex; gap: 10px; width: 100%; }
         .action-btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 18px; font-size: 1rem; font-weight: 800; cursor: pointer; margin-bottom: 12px; transition: transform 0.2s; }
         .action-btn:active { transform: scale(0.97); }
         .btn-add { background: var(--grad-blue); }
         .btn-pdf { background: #dc2626; }
 
         .entry-item { padding: 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .delete-btn { color: var(--danger); background: rgba(239,68,68,0.1); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .hidden { display: none; }
-        .info-row { display: flex; gap: 10px; width: 100%; }
+        .delete-btn { color: var(--danger); background: rgba(239, 68, 68, 0.1); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
+        /* ИСПРАВЛЕННАЯ ПЕЧАТЬ: СТРОГО 1 ЛИСТ */
         @media print {
             @page { margin: 0; size: A4 portrait; }
             html, body { height: 100% !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
-            .no-print, .container, body > *:not(.print-only) { display: none !important; }
-            .print-only { display: block !important; }
+            .no-print, .container, body > *:not(.print-only) { display: none !important; opacity: 0 !important; }
+            .print-only { display: block !important; visibility: visible !important; }
             body { background: white !important; color: black !important; }
-            .print-container { padding: 15mm 20mm !important; width: 210mm !important; height: 297mm !important; box-sizing: border-box !important; background: white !important; position: fixed; top: 0; left: 0; overflow: hidden !important; }
+            .print-container { 
+                padding: 10mm 15mm !important; 
+                width: 210mm !important; 
+                height: 297mm !important; 
+                box-sizing: border-box !important; 
+                position: fixed; top: 0; left: 0; 
+                background: white !important;
+                overflow: hidden !important;
+            }
             .print-header { border-bottom: 2.5px solid #000; text-align: center; margin-bottom: 10px; padding-bottom: 5px; }
             .customer-title { font-weight: bold; font-size: 13pt; border-bottom: 1.5px solid #000; margin-top: 10px; padding-bottom: 2px; text-transform: uppercase; }
-            .work-line { font-size: 11pt; padding: 4px 0; border-bottom: 1px solid #eee; line-height: 1.4; color: black !important; }
+            .work-line { font-size: 10pt; padding: 4px 0; border-bottom: 1px solid #eee; line-height: 1.4; color: black !important; }
             .print-footer { position: absolute; bottom: 10mm; right: 15mm; font-size: 8pt; color: #444; border-top: 1px solid #eee; padding-top: 3px; }
         }
+        .print-only { display: none; }
     </style>
 </head>
 <body class="dark-mode">
@@ -76,85 +79,49 @@
 <div class="container no-print">
     <div class="header">
         <h2>Анаравтотранс Pro</h2>
-        <div class="header-btns">
-            <button class="theme-btn" onclick="shareApp()">🔗 ПОДЕЛИТЬСЯ</button>
-            <button class="theme-btn" onclick="toggleTheme()" id="themeSwitcher">🌙 DARK</button>
-        </div>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeSwitcher">🌙 DARK</button>
     </div>
 
     <div class="card">
         <label>Заказчик</label>
-        <input type="text" id="customerInput" list="customersList" placeholder="Введите название...">
-        <datalist id="customersList"></datalist>
-
+        <input type="text" id="customerInput" placeholder="Введите название...">
+        
         <label>Дата</label>
         <div class="info-row">
             <input type="text" id="dateInput" placeholder="ДД.ММ" style="flex: 2;">
-            <button class="type-btn" onclick="setToday()" style="flex: 1; height: 50px; border: 1px solid var(--border); margin-bottom: 15px; border-radius: 14px;">СЕГОДНЯ</button>
+            <button onclick="setToday()" style="flex: 1; height: 50px; background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 14px; margin-bottom: 15px; font-weight: bold; font-size: 0.7rem;">СЕГОДНЯ</button>
         </div>
 
-        <div class="type-selector">
-            <button class="type-btn active" onclick="setMode('trips')" id="btnTrips">РЕЙСЫ</button>
-            <button class="type-btn" onclick="setMode('hours')" id="btnHours">ЧАСЫ</button>
-            <button class="type-btn" onclick="setMode('text')" id="btnText">ПРОЧЕЕ</button>
+        <label>Маршрут</label>
+        <input type="text" id="loadPlaceInput" placeholder="Откуда">
+        <input type="text" id="unloadPlaceInput" placeholder="Куда">
+        
+        <div class="info-row">
+            <div style="flex:1"><label>км</label><input type="text" id="distInput"></div>
+            <div style="flex:1"><label>Рейсов</label><input type="number" id="tripsCountInput"></div>
+            <div style="flex:1"><label>Тонн</label><input type="number" id="tonsInput"></div>
         </div>
-
-        <div id="fieldTrips">
-            <label>Погрузка</label>
-            <input type="text" id="loadPlaceInput" list="loadsList" placeholder="Откуда">
-            <datalist id="loadsList"></datalist>
-            <label>Выгрузка</label>
-            <input type="text" id="unloadPlaceInput" list="unloadsList" placeholder="Куда">
-            <datalist id="unloadsList"></datalist>
-            <div class="info-row">
-                <div style="flex:1"><label>км</label><input type="text" id="distInput"></div>
-                <div style="flex:1"><label>Рейсов</label><input type="number" id="tripsCountInput"></div>
-                <div style="flex:1"><label>Тонн</label><input type="number" id="tonsInput"></div>
-            </div>
-            <button class="action-btn btn-add" onclick="addEntry()">➕ ДОБАВИТЬ ЗАПИСЬ</button>
-        </div>
-
-        <div id="fieldHours" class="hidden"><div style="text-align:center; padding:20px; color:#94a3b8; font-weight:600;">🛠 В РАЗРАБОТКЕ...</div></div>
-        <div id="fieldText" class="hidden"><div style="text-align:center; padding:20px; color:#94a3b8; font-weight:600;">🛠 В РАЗРАБОТКЕ...</div></div>
+        <button class="action-btn btn-add" onclick="addEntry()">➕ ДОБАВИТЬ ЗАПИСЬ</button>
     </div>
 
-    <div id="entriesCard" class="card" style="padding: 5px;">
-        <div style="padding: 15px 15px 5px 15px; font-weight: 800; color: var(--primary); font-size: 0.8rem; letter-spacing: 1px;">СПИСОК ЗАПИСЕЙ (ЧЕРНОВИК)</div>
+    <div class="card" style="padding: 5px;">
+        <div style="padding: 15px; font-weight: 800; color: var(--primary); font-size: 0.8rem;">СПИСОК (ЧЕРНОВИК)</div>
         <div id="entriesList"></div>
     </div>
 
     <button class="action-btn btn-pdf" onclick="window.print()">📥 СКАЧАТЬ ОТЧЕТ PDF</button>
-    <button style="width:100%; background:none; border:none; color:#64748b; font-size: 0.75rem; margin-top: 20px; text-decoration: underline; cursor:pointer;" onclick="clearAll()">ОЧИСТИТЬ ВСЕ ДАННЫЕ</button>
 </div>
 
-<div id="printArea" class="print-only print-container" style="display:none;">
+<div id="printArea" class="print-only print-container">
     <div class="print-header"><h1>ОТЧЕТ О ВЫПОЛНЕННОЙ РАБОТЕ</h1></div>
     <div id="printContent"></div>
     <div class="print-footer"><p id="printTimestamp"></p></div>
 </div>
 
 <script>
-    let entries = [];
-    let currentMode = 'trips';
-
-    window.onload = function() {
-        const saved = localStorage.getItem('reportEntries');
-        if (saved) { entries = JSON.parse(saved); renderEntries(); }
-        if (localStorage.getItem('theme') === 'light') toggleTheme();
-        updateDatalists(); setToday();
-    };
-
-    function shareApp() {
-        if (navigator.share) {
-            navigator.share({
-                title: 'Анаравтотранс Pro',
-                text: 'Приложение для создания отчетов Анаравтотранс',
-                url: window.location.href
-            }).catch(console.error);
-        } else {
-            alert("Ваш браузер не поддерживает кнопку 'Поделиться'. Просто скопируйте ссылку на файл.");
-        }
-    }
+    let entries = JSON.parse(localStorage.getItem('reportEntries')) || [];
+    renderEntries();
+    setToday();
 
     function toggleTheme() {
         const isLight = document.body.classList.toggle('light-mode');
@@ -167,72 +134,60 @@
         document.getElementById('dateInput').value = `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`;
     }
 
-    function setMode(mode) {
-        currentMode = mode;
-        ['btnTrips', 'btnHours', 'btnText'].forEach(id => document.getElementById(id).classList.remove('active'));
-        document.getElementById('btn' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
-        document.getElementById('fieldTrips').classList.toggle('hidden', mode !== 'trips');
-        document.getElementById('fieldHours').classList.toggle('hidden', mode !== 'hours');
-        document.getElementById('fieldText').classList.toggle('hidden', mode !== 'text');
-    }
-
-    function updateDatalists() {
-        const lists = { customers: new Set(), loads: new Set(), unloads: new Set() };
-        entries.forEach(e => {
-            if (e.customer) lists.customers.add(e.customer);
-            if (e.load) lists.loads.add(e.load);
-            if (e.unload) lists.unloads.add(e.unload);
-        });
-        const fill = (id, set) => {
-            const el = document.getElementById(id); el.innerHTML = '';
-            set.forEach(val => { const opt = document.createElement('option'); opt.value = val; el.appendChild(opt); });
-        };
-        fill('customersList', lists.customers); fill('loadsList', lists.loads); fill('unloadsList', lists.unloads);
-    }
-
     function addEntry() {
-        if (currentMode !== 'trips') return;
-        const customer = document.getElementById('customerInput').value.trim().toUpperCase();
-        const date = document.getElementById('dateInput').value.trim();
-        const load = document.getElementById('loadPlaceInput').value.trim();
-        const unload = document.getElementById('unloadPlaceInput').value.trim();
-        const dist = document.getElementById('distInput').value.trim();
-        const c = document.getElementById('tripsCountInput').value.trim();
-        const t = document.getElementById('tonsInput').value.trim();
-        if (!customer || !date || !load || !unload || !dist || !c || !t) return alert("Заполните все поля!");
-        
-        entries.push({ id: Date.now(), customer, date, load, unload, dist, c, t });
+        const entry = {
+            id: Date.now(),
+            customer: document.getElementById('customerInput').value.trim().toUpperCase(),
+            date: document.getElementById('dateInput').value.trim(),
+            load: document.getElementById('loadPlaceInput').value.trim(),
+            unload: document.getElementById('unloadPlaceInput').value.trim(),
+            dist: document.getElementById('distInput').value.trim(),
+            c: document.getElementById('tripsCountInput').value.trim(),
+            t: document.getElementById('tonsInput').value.trim()
+        };
+
+        if (!entry.customer || !entry.date) return alert("Заполните поля!");
+
+        entries.push(entry);
         localStorage.setItem('reportEntries', JSON.stringify(entries));
-        renderEntries(); updateDatalists();
+        renderEntries();
         ['unloadPlaceInput', 'distInput', 'tripsCountInput', 'tonsInput'].forEach(id => document.getElementById(id).value = '');
     }
 
     function renderEntries() {
-        const listContainer = document.getElementById('entriesList');
-        const printContent = document.getElementById('printContent');
-        listContainer.innerHTML = ''; printContent.innerHTML = '';
+        const list = document.getElementById('entriesList');
+        const print = document.getElementById('printContent');
+        list.innerHTML = ''; print.innerHTML = '';
         document.getElementById('printTimestamp').innerText = "Сформировано: " + new Date().toLocaleString('ru-RU');
+
         const groups = {};
         entries.forEach(e => { if (!groups[e.customer]) groups[e.customer] = []; groups[e.customer].push(e); });
+
         for (const cust in groups) {
             groups[cust].forEach(e => {
-                const div = document.createElement('div'); div.className = 'entry-item';
-                div.innerHTML = `<div><div style="font-size:0.65rem; color:var(--primary); font-weight:800;">${cust}</div><div style="font-size:0.85rem;">${e.date}) ${e.load} — ${e.unload} (${e.dist} км) | Рейсов: ${e.c}, тонн: ${e.t}</div></div> <button class="delete-btn" onclick="deleteItem(${e.id})">✕</button>`;
-                listContainer.appendChild(div);
+                const div = document.createElement('div');
+                div.className = 'entry-item';
+                div.innerHTML = `<div><b>${cust}</b><br><small>${e.date}: ${e.load}-${e.unload}</small></div>
+                <button class="delete-btn" onclick="deleteItem(${e.id})">✕</button>`;
+                list.appendChild(div);
             });
+
             const section = document.createElement('div');
             section.innerHTML = `<div class="customer-title">ЗАКАЗЧИК: ${cust}</div>`;
-            groups[cust].sort((a,b) => a.date.localeCompare(b.date)).forEach(e => {
+            groups[cust].forEach(e => {
                 const line = document.createElement('div'); line.className = 'work-line';
-                line.innerHTML = `Дата: ${e.date} | Маршрут: ${e.load} — ${e.unload} (${e.dist} км) | Рейсов: ${e.c} | Всего тонн: ${e.t}`;
+                line.innerHTML = `Дата: ${e.date} | Маршрут: ${e.load} — ${e.unload} (${e.dist} км) | Рейсов: ${e.c} | Тонн: ${e.t}`;
                 section.appendChild(line);
             });
-            printContent.appendChild(section);
+            print.appendChild(section);
         }
     }
 
-    function deleteItem(id) { if (confirm("Удалить запись?")) { entries = entries.filter(e => e.id !== id); localStorage.setItem('reportEntries', JSON.stringify(entries)); renderEntries(); updateDatalists(); } }
-    function clearAll() { if(confirm('Очистить всё?')) { entries = []; localStorage.removeItem('reportEntries'); renderEntries(); updateDatalists(); } }
+    function deleteItem(id) {
+        entries = entries.filter(e => e.id !== id);
+        localStorage.setItem('reportEntries', JSON.stringify(entries));
+        renderEntries();
+    }
 </script>
 </body>
 </html>
