@@ -42,19 +42,18 @@
         input { width: 100%; padding: 14px; margin-bottom: 15px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; color: var(--text); font-size: 1rem; box-sizing: border-box; }
         
         .info-row { display: flex; gap: 10px; width: 100%; }
-        .action-btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 18px; font-size: 1rem; font-weight: 800; cursor: pointer; margin-bottom: 12px; transition: transform 0.2s; }
-        .action-btn:active { transform: scale(0.97); }
+        .action-btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 18px; font-size: 1rem; font-weight: 800; cursor: pointer; margin-bottom: 12px; }
         .btn-add { background: var(--grad-blue); }
         .btn-pdf { background: #dc2626; }
 
-        .entry-item { padding: 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .delete-btn { color: var(--danger); background: rgba(239, 68, 68, 0.1); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .entry-item { padding: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { color: var(--danger); background: none; border: none; font-weight: bold; padding: 10px; cursor: pointer; }
 
-        /* ИСПРАВЛЕННАЯ ПЕЧАТЬ: СТРОГО 1 ЛИСТ */
+        /* ФИКСАЦИЯ ОДНОГО ЛИСТА */
         @media print {
             @page { margin: 0; size: A4 portrait; }
             html, body { height: 100% !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
-            .no-print, .container, body > *:not(.print-only) { display: none !important; opacity: 0 !important; }
+            .no-print { display: none !important; }
             .print-only { display: block !important; visibility: visible !important; }
             body { background: white !important; color: black !important; }
             .print-container { 
@@ -66,10 +65,10 @@
                 background: white !important;
                 overflow: hidden !important;
             }
-            .print-header { border-bottom: 2.5px solid #000; text-align: center; margin-bottom: 10px; padding-bottom: 5px; }
-            .customer-title { font-weight: bold; font-size: 13pt; border-bottom: 1.5px solid #000; margin-top: 10px; padding-bottom: 2px; text-transform: uppercase; }
-            .work-line { font-size: 10pt; padding: 4px 0; border-bottom: 1px solid #eee; line-height: 1.4; color: black !important; }
-            .print-footer { position: absolute; bottom: 10mm; right: 15mm; font-size: 8pt; color: #444; border-top: 1px solid #eee; padding-top: 3px; }
+            .p-header { border-bottom: 2px solid #000; text-align: center; margin-bottom: 10px; padding-bottom: 5px; }
+            .p-cust { font-weight: bold; font-size: 12pt; border-bottom: 1px solid #000; margin-top: 8px; text-transform: uppercase; }
+            .p-line { font-size: 10pt; padding: 3px 0; border-bottom: 1px solid #eee; color: black !important; }
+            .p-foot { position: absolute; bottom: 10mm; right: 15mm; font-size: 8pt; color: #666; }
         }
         .print-only { display: none; }
     </style>
@@ -84,43 +83,42 @@
 
     <div class="card">
         <label>Заказчик</label>
-        <input type="text" id="customerInput" placeholder="Введите название...">
-        
+        <input type="text" id="cust" placeholder="Введите название...">
         <label>Дата</label>
         <div class="info-row">
-            <input type="text" id="dateInput" placeholder="ДД.ММ" style="flex: 2;">
+            <input type="text" id="date" placeholder="ДД.ММ" style="flex: 2;">
             <button onclick="setToday()" style="flex: 1; height: 50px; background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 14px; margin-bottom: 15px; font-weight: bold; font-size: 0.7rem;">СЕГОДНЯ</button>
         </div>
-
         <label>Маршрут</label>
-        <input type="text" id="loadPlaceInput" placeholder="Откуда">
-        <input type="text" id="unloadPlaceInput" placeholder="Куда">
-        
         <div class="info-row">
-            <div style="flex:1"><label>км</label><input type="text" id="distInput"></div>
-            <div style="flex:1"><label>Рейсов</label><input type="number" id="tripsCountInput"></div>
-            <div style="flex:1"><label>Тонн</label><input type="number" id="tonsInput"></div>
+            <input type="text" id="l" placeholder="Откуда">
+            <input type="text" id="u" placeholder="Куда">
         </div>
-        <button class="action-btn btn-add" onclick="addEntry()">➕ ДОБАВИТЬ ЗАПИСЬ</button>
+        <div class="info-row">
+            <div style="flex:1"><label>км</label><input type="text" id="km"></div>
+            <div style="flex:1"><label>Рейсов</label><input type="number" id="r"></div>
+            <div style="flex:1"><label>Тонн</label><input type="number" id="t"></div>
+        </div>
+        <button class="action-btn btn-add" onclick="add()">➕ ДОБАВИТЬ ЗАПИСЬ</button>
     </div>
 
     <div class="card" style="padding: 5px;">
         <div style="padding: 15px; font-weight: 800; color: var(--primary); font-size: 0.8rem;">СПИСОК (ЧЕРНОВИК)</div>
-        <div id="entriesList"></div>
+        <div id="list"></div>
     </div>
 
     <button class="action-btn btn-pdf" onclick="window.print()">📥 СКАЧАТЬ ОТЧЕТ PDF</button>
 </div>
 
 <div id="printArea" class="print-only print-container">
-    <div class="print-header"><h1>ОТЧЕТ О ВЫПОЛНЕННОЙ РАБОТЕ</h1></div>
-    <div id="printContent"></div>
-    <div class="print-footer"><p id="printTimestamp"></p></div>
+    <div class="p-header"><h1>ОТЧЕТ О ВЫПОЛНЕННОЙ РАБОТЕ</h1></div>
+    <div id="pContent"></div>
+    <div class="p-foot" id="pTime"></div>
 </div>
 
 <script>
-    let entries = JSON.parse(localStorage.getItem('reportEntries')) || [];
-    renderEntries();
+    let reports = JSON.parse(localStorage.getItem('reports')) || [];
+    render();
     setToday();
 
     function toggleTheme() {
@@ -131,62 +129,53 @@
 
     function setToday() {
         const d = new Date();
-        document.getElementById('dateInput').value = `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`;
+        document.getElementById('date').value = `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`;
     }
 
-    function addEntry() {
-        const entry = {
+    function add() {
+        const obj = {
             id: Date.now(),
-            customer: document.getElementById('customerInput').value.trim().toUpperCase(),
-            date: document.getElementById('dateInput').value.trim(),
-            load: document.getElementById('loadPlaceInput').value.trim(),
-            unload: document.getElementById('unloadPlaceInput').value.trim(),
-            dist: document.getElementById('distInput').value.trim(),
-            c: document.getElementById('tripsCountInput').value.trim(),
-            t: document.getElementById('tonsInput').value.trim()
+            c: document.getElementById('cust').value.toUpperCase(),
+            d: document.getElementById('date').value,
+            l: document.getElementById('l').value,
+            u: document.getElementById('u').value,
+            km: document.getElementById('km').value,
+            r: document.getElementById('r').value,
+            t: document.getElementById('t').value
         };
-
-        if (!entry.customer || !entry.date) return alert("Заполните поля!");
-
-        entries.push(entry);
-        localStorage.setItem('reportEntries', JSON.stringify(entries));
-        renderEntries();
-        ['unloadPlaceInput', 'distInput', 'tripsCountInput', 'tonsInput'].forEach(id => document.getElementById(id).value = '');
+        if(!obj.c || !obj.d) return alert("Заполните Заказчика и Дату!");
+        reports.push(obj);
+        localStorage.setItem('reports', JSON.stringify(reports));
+        render();
+        ['l','u','km','r','t'].forEach(id => document.getElementById(id).value = '');
     }
 
-    function renderEntries() {
-        const list = document.getElementById('entriesList');
-        const print = document.getElementById('printContent');
-        list.innerHTML = ''; print.innerHTML = '';
-        document.getElementById('printTimestamp').innerText = "Сформировано: " + new Date().toLocaleString('ru-RU');
+    function render() {
+        const list = document.getElementById('list');
+        const print = document.getElementById('pContent');
+        list.innerHTML = ""; print.innerHTML = "";
+        document.getElementById('pTime').innerText = "Сформировано: " + new Date().toLocaleString();
 
         const groups = {};
-        entries.forEach(e => { if (!groups[e.customer]) groups[e.customer] = []; groups[e.customer].push(e); });
+        reports.forEach(e => { if(!groups[e.c]) groups[e.c] = []; groups[e.c].push(e); });
 
-        for (const cust in groups) {
+        for(const cust in groups) {
             groups[cust].forEach(e => {
-                const div = document.createElement('div');
-                div.className = 'entry-item';
-                div.innerHTML = `<div><b>${cust}</b><br><small>${e.date}: ${e.load}-${e.unload}</small></div>
-                <button class="delete-btn" onclick="deleteItem(${e.id})">✕</button>`;
-                list.appendChild(div);
+                list.innerHTML += `<div class="entry-item"><div><b>${cust}</b><br><small>${e.d}: ${e.l}-${e.u}</small></div><button class="delete-btn" onclick="del(${e.id})">✕</button></div>`;
             });
-
-            const section = document.createElement('div');
-            section.innerHTML = `<div class="customer-title">ЗАКАЗЧИК: ${cust}</div>`;
+            const sec = document.createElement('div');
+            sec.innerHTML = `<div class="p-cust">ЗАКАЗЧИК: ${cust}</div>`;
             groups[cust].forEach(e => {
-                const line = document.createElement('div'); line.className = 'work-line';
-                line.innerHTML = `Дата: ${e.date} | Маршрут: ${e.load} — ${e.unload} (${e.dist} км) | Рейсов: ${e.c} | Тонн: ${e.t}`;
-                section.appendChild(line);
+                sec.innerHTML += `<div class="p-line">Дата: ${e.d} | ${e.l} — ${e.u} (${e.km} км) | Рейсов: ${e.r} | Тонн: ${e.t}</div>`;
             });
-            print.appendChild(section);
+            print.appendChild(sec);
         }
     }
 
-    function deleteItem(id) {
-        entries = entries.filter(e => e.id !== id);
-        localStorage.setItem('reportEntries', JSON.stringify(entries));
-        renderEntries();
+    function del(id) {
+        reports = reports.filter(x => x.id !== id);
+        localStorage.setItem('reports', JSON.stringify(reports));
+        render();
     }
 </script>
 </body>
